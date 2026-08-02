@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-node-selector
+spec:
+  nodeSelector:
+      app: httpd
+  containers:
+  - name: python
+    image: python:alpine
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        cat << EOF > /index.html 
+        <html>
+          <head><title>This is a python App</title></head>
+          <body>
+            <h1> I'm a Python user </h1>
+            <p> Welcome to node-selector-practice </p>
+          </body>
+        </html>
+        EOF
+        python3 -m http.server 5678
+    ports:
+    - name:  python
+      containerPort: 5678
