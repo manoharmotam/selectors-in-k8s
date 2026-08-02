@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeaffinity-demo-soft-rule
+  labels:
+    app: web-app
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: web-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: web-app
+      # APP: NGINX
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 2
+            preference:
+              matchExpressions:
+              - key: APP
+                operator: In
+                values:
+                - NGINX
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - httpd
+      containers:
+      - name: python
+        image: python:alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cat << EOF > /index.html 
+            <html>
+              <head><title>This is a python App</title></head>
+              <body>
+                <h1> I'm a Python user </h1>
+                <p> Welcome to node-selector-practice </p>
+              </body>
+            </html>
+            EOF
+            python3 -m http.server 5678
+        ports:
+        - name:  python
+          containerPort: 5678
